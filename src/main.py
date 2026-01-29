@@ -1,10 +1,7 @@
 from dotenv import load_dotenv
-
 # from connect_database import faiss_local
 from prompt_design import return_custom_prompt_template
 from models import model_groq
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 from langchain_community.vectorstores import FAISS
 from embedding_model import get_embedding_model
 from langchain_classic.chains.retrieval_qa.base import RetrievalQA

@@ -3,7 +3,6 @@ import os
 
 
 def setup_hf_cache():
-    os.chdir("../")
     base_dir = os.getcwd()
     hf_home = os.path.join(base_dir, "embedding_model")
     os.makedirs(hf_home, exist_ok=True)
