@@ -83,11 +83,3 @@ def get_embedding_model():
 
 
 hf_cache_path = setup_hf_cache()
-embedding_model = get_embedding_model()
-
-
-# store embedding in chroma/fiass
-
-DB_FIASS_PATH="vectorstore/db_fiass"
-db=FAISS.from_documents(chunked_documents,embedding_model)
-db.save_local(DB_FIASS_PATH)
