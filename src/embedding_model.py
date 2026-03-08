@@ -30,3 +30,5 @@ def get_embedding_model(model_name: str = DEFAULT_EMBEDDING_MODEL) -> HuggingFac
         model_name=model_name,
         cache_folder=EMBEDDING_CACHE_DIR,
     )
+
+
