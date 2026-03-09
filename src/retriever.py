@@ -16,7 +16,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 
 from config import RETRIEVER_TOP_K
-from prompt import get_prompt_template
+from prompt_design import get_prompt_template
 
 from langchain_core.vectorstores import VectorStore
 from langchain.chains import RetrievalQA

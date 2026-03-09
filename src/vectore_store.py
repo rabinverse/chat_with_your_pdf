@@ -17,7 +17,7 @@ import shutil
 sys.path.insert(0, os.path.dirname(__file__))
 
 from config import VECTORSTORE_BASE_DIR
-from embedding import get_embedding_model
+from embedding_model import get_embedding_model
 
 from langchain_community.vectorstores import Chroma
 

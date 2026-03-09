@@ -1,5 +1,5 @@
 """
-ingestion.py — Fast PDF text extraction + chunking.
+ingestion.py — PDF text extraction + chunking.
 
 Extraction strategy (per page):
   1. PyMuPDF (fitz) text mode   — fast, handles most digital PDFs
@@ -24,6 +24,7 @@ import fitz  # PyMuPDF
 
 # ── Text helpers ──────────────────────────────────────────────────────────────
 
+
 def _clean_text(text: str) -> str:
     """Basic cleanup: collapse whitespace, remove control characters."""
     text = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", text)
@@ -36,24 +37,29 @@ def _mupdf_blocks_text(page: fitz.Page) -> str:
     Extract text using PyMuPDF's structured block mode.
     Works better than plain 'text' mode for some multi-column layouts.
     """
-    blocks = page.get_text("blocks")  # list of (x0, y0, x1, y1, text, block_no, block_type)
+    blocks = page.get_text(
+        "blocks"
+    )  # list of (x0, y0, x1, y1, text, block_no, block_type)
     lines = [b[4] for b in sorted(blocks, key=lambda b: (b[1], b[0])) if b[6] == 0]
     return "\n".join(lines)
 
 
 # ── Fallback 2: OCR ──────────────────────────────────────────────────────────
 
+
 def _extract_page_ocr(pdf_path: str, page_index: int, dpi: int = 100) -> str:
     """
-    OCR a single page. 
+    OCR a single page.
     dpi=100 is used instead of 200 to prevent 'Estimating resolution' errors
     and significantly speed up the extraction of large scanned PDFs.
     """
     try:
         from pdf2image import convert_from_path
         import pytesseract
+
         images = convert_from_path(
-            pdf_path, dpi=dpi,
+            pdf_path,
+            dpi=dpi,
             first_page=page_index + 1,
             last_page=page_index + 1,
         )
@@ -64,7 +70,8 @@ def _extract_page_ocr(pdf_path: str, page_index: int, dpi: int = 100) -> str:
     return ""
 
 
-# ── Main ingestion entry-point ────────────────────────────────────────────────
+# ── Main ingestion entry_point ────────────────────────────────────────────────
+
 
 def ingest_pdf(
     file_path: str,
@@ -86,7 +93,7 @@ def ingest_pdf(
     """
     source_label = pdf_name or os.path.basename(file_path)
 
-    # ── Stage 1 & 2: PyMuPDF (fast — whole doc in one pass) ──────────────────
+    # ── Stage 1 & 2: PyMuPDF (fast _ whole doc in one pass) ──────────────────
     try:
         doc = fitz.open(file_path)
         num_pages = len(doc)
@@ -124,13 +131,17 @@ def ingest_pdf(
             ocr_text = _clean_text(_extract_page_ocr(file_path, page_idx, dpi=100))
             if len(ocr_text) > len(text):
                 text = ocr_text
-                
+
         return page_idx, text, used_ocr
 
     results = []
     # Use max_workers=os.cpu_count() or a reasonable number to parallelize OCR
-    with ThreadPoolExecutor(max_workers=max(1, int((os.cpu_count() or 4) * 0.8))) as executor:
-        futures = {executor.submit(process_page, idx, text): idx for idx, text in raw_pages}
+    with ThreadPoolExecutor(
+        max_workers=max(1, int((os.cpu_count() or 4) * 0.8))
+    ) as executor:
+        futures = {
+            executor.submit(process_page, idx, text): idx for idx, text in raw_pages
+        }
         for future in as_completed(futures):
             results.append(future.result())
 
@@ -140,15 +151,17 @@ def ingest_pdf(
     for page_idx, text, used_ocr in results:
         if used_ocr:
             ocr_count += 1
-        
+
         if text:
-            documents.append(Document(
-                page_content=text,
-                metadata={
-                    "source": source_label,
-                    "page": page_idx + 1,   # 1-indexed for display
-                },
-            ))
+            documents.append(
+                Document(
+                    page_content=text,
+                    metadata={
+                        "source": source_label,
+                        "page": page_idx + 1,  # 1-indexed for display
+                    },
+                )
+            )
 
     if ocr_count:
         print(f"[Ingestion] Fast-OCR used for {ocr_count} page(s).")
