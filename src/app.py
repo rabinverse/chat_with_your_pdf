@@ -26,12 +26,18 @@ sys.path.insert(0, os.path.dirname(__file__))
 import streamlit as st
 from dotenv import load_dotenv
 
-from config import DEFAULT_LLM_MODEL, DEFAULT_LLM_PROVIDER, DEFAULT_EMBEDDING_MODEL
+from config import (
+    DEFAULT_LLM_MODEL,
+    DEFAULT_LLM_PROVIDER,
+    DEFAULT_EMBEDDING_MODEL,
+    MODEL_CONFIG,
+)
 from embedding_model import get_embedding_model
 from ingestion import ingest_pdf
-from vectorstore import get_vectorstore, list_vectorstores, delete_vectorstore
+from vectore_store import get_vectorstore, list_vectorstores, delete_vectorstore
 from llm import get_llm
 from retriever import retrieve_pages, get_answer
+
 
 load_dotenv()
 
@@ -184,24 +190,20 @@ with st.sidebar:
     # ── 3. Model configuration ─────────────────────────────────────────────────
     st.markdown("### Model Settings")
     llm_provider = st.selectbox(
-        "LLM Provider", ["Groq", "HuggingFace"], key="llm_provider"
+        "LLM Provider", ["Groq", "HuggingFace", "Google"], key="llm_provider"
     )
     if llm_provider == "Groq":
         llm_model = st.selectbox(
             "Model",
-            [
-                "openai/gpt-oss-120b",
-                "llama3-8b-8192",
-                "llama3-70b-8192",
-                "mixtral-8x7b-32768",
-                "gemma2-9b-it",
-            ],
+            MODEL_CONFIG["Groq"],
             key="llm_model",
         )
+    elif llm_provider == "Google":
+        llm_model = st.selectbox("Model", MODEL_CONFIG["Google"], key="llm_model")
     else:
-        llm_model = st.text_input(
+        llm_model = st.selectbox(
             "HuggingFace Repo ID",
-            value="google/flan-t5-large",
+            MODEL_CONFIG["HuggingFace_models"],
             key="llm_model_hf",
         )
 
@@ -261,13 +263,13 @@ if user_query:
     with st.chat_message("assistant"):
         response_container = st.empty()
 
-        # ── STEP 1: Show page numbers immediately ──────────────────────────────
+        # ── STEP 1: Showing page numbers immediately ──────────────────────────────
         pages = retrieve_pages(user_query, vector_stores)
 
         if pages:
             pages_html = "".join(f'<span class="page-badge">{p}</span>' for p in pages)
             step1_html = (
-                f'<p class="pages-header">📑 Relevant pages found instantly:</p>'
+                f'<p class="pages-header">📑 Relevant pages:</p>'
                 f"{pages_html}<br><br>"
                 f'<span style="color:#94a3b8; font-size:0.85rem;">⏳ Generating AI answer…</span>'
             )
@@ -282,11 +284,7 @@ if user_query:
             vector_stores=vector_stores,
             llm=get_llm(
                 provider=llm_provider.lower(),
-                model_name=(
-                    llm_model
-                    if llm_provider == "Groq"
-                    else st.session_state.get("llm_model_hf", "google/flan-t5-large")
-                ),
+                model_name=(llm_model.lower()),
             ),
         )
 
@@ -305,7 +303,6 @@ if user_query:
 
         response_container.markdown(final_html, unsafe_allow_html=True)
 
-    # Save to session history (plain text for re-display)
     pages_text = (
         f"**📑 Sources: {', '.join(map(str, all_pages))}**\n\n" if all_pages else ""
     )

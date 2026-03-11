@@ -27,7 +27,8 @@ for _dir in (USEFUL_COMPONENTS_DIR, EMBEDDING_CACHE_DIR, VECTORSTORE_BASE_DIR):
 DEFAULT_EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 DEFAULT_LLM_PROVIDER = "groq"
-DEFAULT_LLM_MODEL = "openai/gpt-oss-120b"
+DEFAULT_LLM_MODEL = "mistralai/Mistral-7B-Instruct-v0.2"
+DEFAULT_Gemini_LLM_MODEL = "gemini-2.5-flash"
 
 # ── Retrieval settings ────────────────────────────────────────────────────────
 RETRIEVER_TOP_K = 8  # how many chunks to retrieve per query
@@ -39,3 +40,20 @@ CHUNK_OVERLAP = 100
 # ── OCR / Ingestion settings ──────────────────────────────────────────────────
 # If a page has fewer chars than this threshold we fall back to pdfplumber/OCR
 MIN_PAGE_CHARS = 50
+
+
+# ── model cofig ──────────────────────────────────────────────────
+MODEL_CONFIG = {
+    "Groq": [
+        "qwen/qwen3-32b",
+        "llama-3.3-70b-versatile",
+        "openai/gpt-oss-120b",
+        "openai/gpt-oss-20b",
+        "groq/compound",
+    ],
+    "HuggingFace_models": [
+        "Qwen/Qwen2.5-Coder-3B-Instruct",
+        "mistralai/Mistral-7B-Instruct-v0.2",
+    ],
+    "Google": ["gemini-2.5-flash"],
+}
