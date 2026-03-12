@@ -5,6 +5,7 @@ langchain-core
 langchain-text-splitters
 langchain-groq
 langchain-huggingface
+langchain-classic
 # langchain-pinecone
 # pinecone<8.0.0
 chromadb

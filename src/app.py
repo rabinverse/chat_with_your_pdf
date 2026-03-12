@@ -169,11 +169,13 @@ with st.sidebar:
         )
         col1, col2 = st.columns([2, 1])
         with col1:
+            st.divider()
             if st.button("📂 Load Selected", use_container_width=True):
                 st.session_state.active_pdfs = selected
                 st.session_state.messages = []
                 st.rerun()
         with col2:
+            st.divider()
             if st.button("🗑️ Delete", use_container_width=True):
                 if selected:
                     for s in selected:

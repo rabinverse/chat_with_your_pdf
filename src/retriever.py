@@ -20,7 +20,11 @@ from prompt_design import get_prompt_template
 
 from langchain_core.vectorstores import VectorStore
 from langchain.chains import RetrievalQA
+
+# from langchain.classic.chains import RetrievalQA
 from langchain.retrievers.merger_retriever import MergerRetriever
+
+# from langchain.classic.retrievers.merger_retriever import MergerRetriever
 
 
 def _get_combined_retriever(vector_stores: list[VectorStore], k: int):
