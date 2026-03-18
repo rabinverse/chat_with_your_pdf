@@ -125,6 +125,7 @@ with st.sidebar:
                         chunks = ingest_pdf(tmp_path, pdf_name=pdf_name)
                     finally:
                         os.unlink(tmp_path)
+                        del chunks
 
                     if not chunks:
                         st.error(
@@ -291,8 +292,10 @@ if user_query:
         )
 
         # Merge page sets (retriever + QA chain may differ slightly)
-        all_pages = sorted(set(pages) | set(answer_pages))
+        all_pages = ((pages) )
+        # all_pages = (set(pages) | set(answer_pages))
 
+# 
         if all_pages:
             pages_html = "".join(
                 f'<span class="page-badge">{p}</span>' for p in all_pages

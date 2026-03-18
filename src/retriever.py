@@ -21,10 +21,10 @@ from prompt_design import get_prompt_template
 from langchain_core.vectorstores import VectorStore
 from langchain.chains import RetrievalQA
 
-# from langchain.classic.chains import RetrievalQA
+# from langchain_classic.chains import RetrievalQA
 from langchain.retrievers.merger_retriever import MergerRetriever
 
-# from langchain.classic.retrievers.merger_retriever import MergerRetriever
+# from langchain_classic.retrievers.merger_retriever import MergerRetriever
 
 
 def _get_combined_retriever(vector_stores: list[VectorStore], k: int):
@@ -38,24 +38,25 @@ def _get_combined_retriever(vector_stores: list[VectorStore], k: int):
 
 
 def _format_source_pages(docs) -> list[str]:
-    unique_sources = set()
+    """Return pages in order of relevance (similarity score)."""
+    seen = set()  # Track which (source, page) pairs we've already added
+    formatted = []
+    
+    # Iterate through docs in order (already sorted by relevance from retriever)
     for doc in docs:
         page = doc.metadata.get("page")
         if page is not None:
             source = doc.metadata.get("source", "Unknown")
-            unique_sources.add((source, page))
-
-    sorted_sources = sorted(list(unique_sources), key=lambda x: (x[0], x[1]))
-
-    formatted = []
-    for source, page in sorted_sources:
-        clean_source = source.replace(".pdf", "")
-        # Shorten to 15 characters if it's too long
-        short_source = (
-            clean_source[:15] + ".." if len(clean_source) > 15 else clean_source
-        )
-        formatted.append(f"{short_source} pg.{page}")
-
+            pair = (source, page)
+            
+            if pair not in seen:
+                seen.add(pair)
+                clean_source = source.replace(".pdf", "")
+                short_source = (
+                    clean_source[:15] + ".." if len(clean_source) > 15 else clean_source
+                )
+                formatted.append(f"{short_source} pg.{page}")
+    
     return formatted
 
 

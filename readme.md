@@ -282,7 +282,7 @@ Edit prompt_design.py to change how the AI responds to questions.
 
 ## License
 
-This project is open source. See LICENSE file (if present) for details.
+This project is open source. See LICENSE file for details.
 
 ## Support & Contributing
 
