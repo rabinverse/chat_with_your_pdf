@@ -125,7 +125,7 @@ with st.sidebar:
                         chunks = ingest_pdf(tmp_path, pdf_name=pdf_name)
                     finally:
                         os.unlink(tmp_path)
-                        del chunks
+                        
 
                     if not chunks:
                         st.error(
@@ -149,11 +149,13 @@ with st.sidebar:
                         embedding_model=st.session_state.embedding_model,
                     )
                     st.success(f" Vector store saved for *{pdf_name}*")
-
+                    del chunks
+                
             if uploaded_files:
                 st.session_state.active_pdfs = new_pdfs
                 st.session_state.messages = []  # reset chat for new docs
                 st.rerun()
+
 
     st.divider()
 

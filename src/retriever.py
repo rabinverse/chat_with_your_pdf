@@ -19,12 +19,12 @@ from config import RETRIEVER_TOP_K
 from prompt_design import get_prompt_template
 
 from langchain_core.vectorstores import VectorStore
-from langchain.chains import RetrievalQA
+# from langchain.chains import RetrievalQA
 
-# from langchain_classic.chains import RetrievalQA
-from langchain.retrievers.merger_retriever import MergerRetriever
+from langchain_classic.chains import RetrievalQA
+# from langchain.retrievers.merger_retriever import MergerRetriever
 
-# from langchain_classic.retrievers.merger_retriever import MergerRetriever
+from langchain_classic.retrievers.merger_retriever import MergerRetriever
 
 
 def _get_combined_retriever(vector_stores: list[VectorStore], k: int):
