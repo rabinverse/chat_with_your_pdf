@@ -17,6 +17,7 @@ Do NOT make up information or answer from general knowledge.
 
 Be comprehensive and specific. If the context contains partial information, share what is available.
 Provide a clear, well-structured answer that directly addresses the question.
+Please provide a {answer_length} answer.
 
 Context:
 {context}
@@ -26,9 +27,10 @@ Question: {question}
 Answer:"""
 
 
-def get_prompt_template() -> PromptTemplate:
+def get_prompt_template(answer_length: str = "Medium") -> PromptTemplate:
     """Returns the LangChain PromptTemplate for Q&A."""
+    template_with_length = CUSTOM_PROMPT_TEMPLATE.replace("{answer_length}", answer_length.lower())
     return PromptTemplate(
-        template=CUSTOM_PROMPT_TEMPLATE,
+        template=template_with_length,
         input_variables=["context", "question"],
     )

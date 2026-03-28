@@ -20,7 +20,7 @@ from config import DEFAULT_LLM_MODEL, DEFAULT_LLM_PROVIDER, DEFAULT_Gemini_LLM_M
 load_dotenv()
 
 
-def get_groq_model(model_name: str = DEFAULT_LLM_MODEL):
+def get_groq_model(model_name: str = DEFAULT_LLM_MODEL, ):
     """
     Returns a ChatGroq LLM instance.
     Requires GROQ_API_KEY in the environment.
@@ -30,10 +30,10 @@ def get_groq_model(model_name: str = DEFAULT_LLM_MODEL):
     api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
         raise ValueError("GROQ_API_KEY is not set in environment variables.")
-    return ChatGroq(model=model_name, api_key=api_key)
+    return ChatGroq(model=model_name, api_key=api_key, )
 
 
-def get_gemini_model(model_name: str = DEFAULT_Gemini_LLM_MODEL):
+def get_gemini_model(model_name: str = DEFAULT_Gemini_LLM_MODEL, ):
     """
     Returns a Gemini llm instance.
     Requires GOOGLE_API_KEY in the environment.
@@ -43,10 +43,10 @@ def get_gemini_model(model_name: str = DEFAULT_Gemini_LLM_MODEL):
     api_key = os.environ.get("GOOGLE_API_KEY")
     if not api_key:
         raise ValueError("GOOGLE_API_KEY is not set in environment variables.")
-    return ChatGoogleGenerativeAI(model=model_name, api_key=api_key)
+    return ChatGoogleGenerativeAI(model=model_name, api_key=api_key, )
 
 
-def get_hf_model(repo_id: str, temperature: float = 0.5, max_new_tokens: int = 512):
+def get_hf_model(repo_id: str,  max_new_tokens: int = 512):
     """
     Returns a HuggingFaceEndpoint LLM.
     Requires HF_TOKEN in the environment.
@@ -59,14 +59,14 @@ def get_hf_model(repo_id: str, temperature: float = 0.5, max_new_tokens: int = 5
     llm = HuggingFaceEndpoint(
         repo_id=repo_id,
         task="text_generation",
-        temperature=temperature,
+        
         huggingfacehub_api_token=hf_token,
         max_new_tokens=max_new_tokens,
     )
     return ChatHuggingFace(llm=llm)
 
 
-def get_llm(provider: str = DEFAULT_LLM_PROVIDER, model_name: str = DEFAULT_LLM_MODEL):
+def get_llm(provider: str = DEFAULT_LLM_PROVIDER, model_name: str = DEFAULT_LLM_MODEL, ):
     """
     Factory: returns an LLM based on the selected provider.
 
@@ -76,11 +76,11 @@ def get_llm(provider: str = DEFAULT_LLM_PROVIDER, model_name: str = DEFAULT_LLM_
     """
     provider = provider.lower()
     if provider == "groq":
-        return get_groq_model(model_name)
+        return get_groq_model(model_name, )
     if provider == "google":
-        return get_gemini_model(model_name)
+        return get_gemini_model(model_name, )
     elif provider == "huggingface":
-        return get_hf_model(model_name)
+        return get_hf_model(model_name,)
     else:
         raise ValueError(
             f"Unsupported LLM provider: '{provider}'. Use 'groq' or 'huggingface'."

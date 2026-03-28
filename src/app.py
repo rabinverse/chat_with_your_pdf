@@ -42,13 +42,21 @@ from retriever import retrieve_pages, get_answer
 load_dotenv()
 
 # ── Page config ───────────────────────────────────────────────────────────────
+
 st.set_page_config(
     page_title="Chat with your PDF",
     page_icon="📄",
     layout="wide",
     initial_sidebar_state="expanded",
 )
-
+st.sidebar.markdown(
+    '<div style="margin-bottom:-10px; display:flex; gap:8px;">'
+    '<a href="https://github.com/rabinverse" target="_blank" style="text-decoration:none;">'
+    '<img src="data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 width=%2725%27 height=%2725%27 viewBox=%270 0 16 16%27 fill=%27%23000%27><path d=%27M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z%27/></svg>" width="25" style="vertical-align:middle;">'
+    "</a>"
+    "</div>",
+    unsafe_allow_html=True,
+)
 
 # css
 st.markdown(
@@ -125,7 +133,6 @@ with st.sidebar:
                         chunks = ingest_pdf(tmp_path, pdf_name=pdf_name)
                     finally:
                         os.unlink(tmp_path)
-                        
 
                     if not chunks:
                         st.error(
@@ -150,12 +157,11 @@ with st.sidebar:
                     )
                     st.success(f" Vector store saved for *{pdf_name}*")
                     del chunks
-                
+
             if uploaded_files:
                 st.session_state.active_pdfs = new_pdfs
                 st.session_state.messages = []  # reset chat for new docs
                 st.rerun()
-
 
     st.divider()
 
@@ -194,6 +200,14 @@ with st.sidebar:
 
     # ── 3. Model configuration ─────────────────────────────────────────────────
     st.markdown("### Model Settings")
+
+    # temperature = st.slider("Temperature", min_value=0.0, max_value=1.0, value=0.0, step=0.1)
+    answer_length = st.selectbox(
+        "Answer Length",
+        options=["Short", "Medium", "Long", "Very_detailed_with_bullet_points"],
+        index=1,
+    )
+
     llm_provider = st.selectbox(
         "LLM Provider", ["Groq", "HuggingFace", "Google"], key="llm_provider"
     )
@@ -211,11 +225,20 @@ with st.sidebar:
             MODEL_CONFIG["HuggingFace_models"],
             key="llm_model_hf",
         )
+        st.divider()
+    if st.session_state.active_pdfs:
 
-# ── Main area ─────────────────────────────────────────────────────────────────
+        pdfs_str = ", ".join([f"`{p}`" for p in st.session_state.active_pdfs])
+        st.markdown(
+            f"**Active PDF(s):** {pdfs_str} ",
+        )
+
+# ── Main section ─────────────────────────────────────────────────────────────────
+
 st.markdown('<p class="main-title">📄 Chat with your PDF</p>', unsafe_allow_html=True)
 
 if st.session_state.active_pdfs:
+
     pdfs_str = ", ".join([f"`{p}`" for p in st.session_state.active_pdfs])
     st.markdown(
         f"**Active PDF(s):** {pdfs_str} — ask anything below.",
@@ -290,14 +313,16 @@ if user_query:
             llm=get_llm(
                 provider=llm_provider.lower(),
                 model_name=(llm_model.lower()),
+                # temperature=temperature,
             ),
+            answer_length=answer_length,
         )
 
         # Merge page sets (retriever + QA chain may differ slightly)
-        all_pages = ((pages) )
+        all_pages = pages
         # all_pages = (set(pages) | set(answer_pages))
 
-# 
+        #
         if all_pages:
             pages_html = "".join(
                 f'<span class="page-badge">{p}</span>' for p in all_pages

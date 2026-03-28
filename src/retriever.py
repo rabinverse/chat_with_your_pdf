@@ -86,6 +86,7 @@ def get_answer(
     vector_stores: list[VectorStore],
     llm,
     k: int = RETRIEVER_TOP_K,
+    answer_length: str = "Medium",
 ) -> tuple[str, list[str]]:
     """
     Run the full RAG Q&A chain and return the answer and citation pages.
@@ -105,7 +106,7 @@ def get_answer(
             chain_type="stuff",
             retriever=retriever,
             return_source_documents=True,
-            chain_type_kwargs={"prompt": get_prompt_template()},
+            chain_type_kwargs={"prompt": get_prompt_template(answer_length)},
         )
         response = chain.invoke({"query": query})
         answer = response.get("result", "No answer generated.")
